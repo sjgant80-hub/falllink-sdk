@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>FallLink SDK · Playground</title>
+<style>
+:root{--bg:#1a1a1e;--surface:#2a2a30;--line:rgba(232,228,219,0.12);--text:#e8e4db;--muted:#928d80;--sage:#7a9c7e;--amber:#d4a052;--coral:#d67a5a;--mono:'JetBrains Mono',monospace}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{background:var(--bg);color:var(--text);font-family:system-ui,sans-serif;font-size:15px;line-height:1.6;min-height:100vh}
+main{max-width:960px;margin:0 auto;padding:28px 22px}
+h1{font-family:Georgia,serif;font-weight:400;font-size:30px;margin-bottom:8px}
+h1 em{color:var(--sage);font-style:italic}
+h3{color:var(--muted);font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;margin-bottom:8px}
+p{color:var(--muted);margin-bottom:16px}
+.card{background:#212127;border:1px solid var(--line);border-radius:12px;padding:20px;margin-bottom:16px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
+@media(max-width:640px){.stats{grid-template-columns:1fr 1fr}}
+.stat{background:var(--surface);border-radius:8px;padding:10px 12px;border-left:2px solid var(--line)}
+.stat.sage{border-left-color:var(--sage)}.stat.amber{border-left-color:var(--amber)}
+.label{color:var(--muted);font-family:var(--mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;margin-bottom:4px}
+.val{font-family:var(--mono);font-size:12px;word-break:break-all}
+.val.big{font-family:Georgia,serif;font-size:24px;font-style:italic}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+button{background:var(--sage);color:var(--bg);border:none;padding:10px 18px;border-radius:8px;font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;font-weight:700}
+button:hover{background:#8db091}button.ghost{background:transparent;color:var(--text);border:1px solid var(--line)}
+button.amber{background:var(--amber);color:var(--bg)}
+input,textarea{width:100%;background:#141418;color:var(--text);border:1px solid var(--line);border-radius:6px;padding:8px 12px;font-family:var(--mono);font-size:11px;margin-bottom:8px}
+textarea{min-height:70px;resize:vertical}
+.log{background:var(--surface);border-radius:8px;padding:12px;max-height:220px;overflow-y:auto;font-family:var(--mono);font-size:11px;line-height:1.6}
+.log .l{padding:1px 0}
+.l.sage{color:var(--sage)}.l.amber{color:var(--amber)}.l.coral{color:var(--coral)}
+.peer{background:var(--surface);border-radius:8px;padding:10px 14px;margin-bottom:6px;font-family:var(--mono);font-size:11px;border-left:2px solid var(--line);display:flex;justify-content:space-between;gap:10px}
+.peer.connected{border-left-color:var(--sage)}.peer.connecting{border-left-color:var(--amber)}
+.empty{padding:20px;text-align:center;color:var(--muted);font-style:italic}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+footer{padding:20px;text-align:center;color:var(--muted);font-family:var(--mono);font-size:10px;letter-spacing:.14em}
+footer a{color:var(--sage)}
+</style>
+</head>
+<body>
+<main>
+<h1>FallLink SDK <em>playground</em></h1>
+<p>Open this page in two tabs on the same device. Click "Start broadcast" on both — same-origin BroadcastChannel handshake, WebRTC data channel established, ping/pong latency reported.</p>
+
+<div class="card">
+<h3>Node state</h3>
+<div class="stats">
+  <div class="stat sage"><div class="label">Own ID</div><div class="val" id="own">—</div></div>
+  <div class="stat amber"><div class="label">Signal channel</div><div class="val" id="chan">fall-signal</div></div>
+  <div class="stat"><div class="label">Connected</div><div class="val big" id="count">0</div></div>
+  <div class="stat"><div class="label">Broadcasting</div><div class="val" id="live">off</div></div>
+</div>
+<div class="actions">
+  <button id="btn-bc">Start broadcast</button>
+  <button id="btn-ping" class="amber">Ping all</button>
+  <button id="btn-stop" class="ghost">Stop</button>
+</div>
+</div>
+
+<div class="card">
+<h3>Broadcast a message</h3>
+<div class="row" style="margin-top:0">
+  <input id="msg" placeholder="hello, peers…">
+  <button id="btn-send">Send</button>
+</div>
+</div>
+
+<div class="card">
+<h3>Peers</h3>
+<div id="peers"><div class="empty">No peers yet.</div></div>
+</div>
+
+<div class="card">
+<h3>Cross-network paste</h3>
+<button id="btn-offer" class="ghost">Create offer</button>
+<textarea id="offer-out" readonly placeholder="Offer bundle appears here…"></textarea>
+<textarea id="answer-in" placeholder="Paste answer bundle here…"></textarea>
+<button id="btn-apply-answer" class="ghost">Apply answer</button>
+<hr style="border:none;border-top:1px solid var(--line);margin:12px 0">
+<textarea id="offer-in" placeholder="Paste offer bundle here…"></textarea>
+<button id="btn-mk-answer" class="ghost">Generate answer</button>
+<textarea id="answer-out" readonly placeholder="Answer bundle appears here…"></textarea>
+</div>
+
+<div class="card">
+<h3>Activity</h3>
+<div class="log" id="log"></div>
+</div>
+
+</main>
+<footer>FallLink SDK · MIT · AI-Native Solutions 2026 · <a href="https://github.com/sjgant80-hub/falllink-sdk">github</a></footer>
+
+<script type="module">
+import { FallLink } from '../src/index.js';
+const ownId = 'demo-' + Math.random().toString(36).slice(2,8);
+const link = new FallLink({ ownId });
+window.link = link;
+
+function log(m,k='info'){const el=document.getElementById('log');const d=document.createElement('div');d.className='l '+k;d.textContent=new Date().toLocaleTimeString()+' · '+m;el.insertBefore(d,el.firstChild);while(el.children.length>60)el.removeChild(el.lastChild);}
+function render(){
+  const peers=link.getPeers();
+  const c=peers.filter(p=>p.state==='connected').length;
+  document.getElementById('own').textContent=ownId;
+  document.getElementById('chan').textContent=link.signalChannel;
+  document.getElementById('count').textContent=c;
+  document.getElementById('live').textContent=link._broadcasting?'live':'off';
+  const el=document.getElementById('peers');
+  if(!peers.length){el.innerHTML='<div class="empty">No peers yet.</div>';return;}
+  el.innerHTML=peers.map(p=>`<div class="peer ${p.state}"><span>${p.peerId.slice(0,20)}</span><span>${p.state}</span><span>${p.latency==null?'—':p.latency+'ms'}</span></div>`).join('');
+}
+link.on('peer',({peerId})=>{log('peer up '+peerId.slice(0,10),'sage');render();});
+link.on('message',({peerId,data})=>{log(peerId.slice(0,10)+' → '+(typeof data==='string'?data:JSON.stringify(data)).slice(0,80));});
+link.on('disconnect',({peerId})=>{log('disconnect '+peerId.slice(0,10),'coral');render();});
+link.on('latency',render);
+link.on('broadcast',({on})=>{log('broadcast '+(on?'started':'stopped'),on?'sage':'amber');render();});
+link.on('error',({where,error})=>log('err '+where+' '+error,'coral'));
+
+document.getElementById('btn-bc').onclick=()=>link.startBroadcast();
+document.getElementById('btn-stop').onclick=()=>link.stopBroadcast();
+document.getElementById('btn-ping').onclick=async()=>{for(const p of link.getPeers()){const l=await link.ping(p.peerId);log('ping '+p.peerId.slice(0,10)+' → '+(l==null?'timeout':l+'ms'),l==null?'coral':'sage');}};
+document.getElementById('btn-send').onclick=()=>{const i=document.getElementById('msg');const m=i.value.trim();if(!m)return;const n=link.broadcast({text:m,from:ownId});log('broadcast → '+n+' peer(s): '+m,'sage');i.value='';};
+document.getElementById('btn-offer').onclick=async()=>{try{const {bundle}=await link.createOffer();document.getElementById('offer-out').value=bundle;log('offer ready','amber');}catch(e){log('offer failed '+e.message,'coral');}};
+document.getElementById('btn-apply-answer').onclick=async()=>{const v=document.getElementById('answer-in').value.trim();if(!v)return;try{await link.acceptAnswer(v);log('answer applied','sage');}catch(e){log('bad answer '+e.message,'coral');}};
+document.getElementById('btn-mk-answer').onclick=async()=>{const v=document.getElementById('offer-in').value.trim();if(!v)return;try{const {bundle}=await link.acceptOffer(v);document.getElementById('answer-out').value=bundle;log('answer ready','amber');}catch(e){log('bad offer '+e.message,'coral');}};
+
+log('FallLink SDK playground ready · '+ownId,'sage');
+render();
+</script>
+</body>
+</html>

@@ -1,0 +1,17 @@
+name: publish
+on:
+  push:
+    tags: ['v*']
+jobs:
+  npm:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          registry-url: 'https://registry.npmjs.org/'
+      - run: npm publish --access public || echo "npm publish failed (likely missing NPM_TOKEN or version already published) — continuing"
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
