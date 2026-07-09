@@ -1,29 +1,24 @@
 {
   "name": "@ai-native-solutions/falllink-sdk",
   "version": "1.0.0",
-  "description": "Reusable WebRTC P2P library. STUN + BroadcastChannel same-origin auto-discovery + manual offer/answer paste for cross-network. One connection layer every tool imports.",
+  "description": "falllink SDK · sovereign single-file library extracted from falllink/index.html",
   "type": "module",
   "main": "src/index.js",
-  "module": "src/index.js",
-  "exports": {
-    ".": "./src/index.js"
-  },
+  "types": "src/index.d.ts",
   "files": ["src", "docs", "README.md", "LICENSE"],
-  "keywords": ["webrtc", "p2p", "peer-to-peer", "stun", "broadcastchannel", "datachannel", "sovereign", "falllink"],
-  "author": "AI-Native Solutions <sjgant80@gmail.com>",
+  "scripts": {
+    "test": "node --test test/",
+    "smoke": "node examples/smoke.js"
+  },
+  "keywords": ["falllink", "sdk", "sovereign", "ai-native-solutions"],
+  "author": "AI-Native Solutions",
   "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/sjgant80-hub/falllink-sdk.git"
   },
   "homepage": "https://sjgant80-hub.github.io/falllink-sdk/",
-  "bugs": {
-    "url": "https://github.com/sjgant80-hub/falllink-sdk/issues"
-  },
-  "engines": {
-    "node": ">=18"
-  },
-  "scripts": {
-    "test": "node -e \"import('./src/index.js').then(m => { if (!m.FallLink) throw new Error('FallLink export missing'); console.log('ok · FallLink exported'); })\""
+  "publishConfig": {
+    "access": "public"
   }
 }
